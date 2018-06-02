@@ -11,12 +11,11 @@
 
 %% API
 -export([start/0,stop/0,init/0]).
--export([addStation/2,addValue/4,removeValue/3,getAirQualityIndex/2,getStationMean/2,getOneValue/3,getDailyMean/2]).
+-export([addStation/2,addValue/4,removeValue/3,getAirQualityIndex/2,getStationMean/2,getOneValue/3,getDailyMean/2,crash/0]).
 
 start() ->
-  register( server ,  spawn(?MODULE , init , [])  )
+  register( server ,  spawn_link(?MODULE , init , [])  )
 .
-
 
 stop () ->
   server ! stop
@@ -68,7 +67,9 @@ loop(Monitor) ->
       XD = pollution:getAirQualityIndex(Monitor,Date,NameOrCoordinates),
       PID ! XD,
       io:format(XD),
-      loop(Monitor)
+      loop(Monitor);
+
+    {PID,crash} -> 1/0
 
 end.
 
@@ -77,6 +78,7 @@ addStation(StationName,Coordinates) ->
   receive
     M -> io:format("Result: ~p~n", [M])
   end.
+
 %tu cos trzeba odebrac
 addValue(NameOrCoordinates,Date,MeasurementType,MeasurementValue) ->
   server ! {self(),addValue,NameOrCoordinates,Date,MeasurementType,MeasurementValue}
@@ -97,6 +99,9 @@ getAirQualityIndex(Date,NameOrCoordinates) ->
   server ! {self(),getAirQualityIndex,Date,NameOrCoordinates}
 .
 
+crash() ->
+  server ! {self(),crash}
+.
 
 
 

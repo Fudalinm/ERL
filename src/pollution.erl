@@ -15,7 +15,6 @@
   debug1/1,debug2/3]).
 
 %odczyty w rekordach
-
 -record(monitor,{cToId,nToId,idToSt,nextId = 0}). %stations w postaci listy
 -record(station,{stationName,coordinates,measurements = []}). %coordinates {X,Y} mapa data na pomiary?
 -record(measurement,{type,date,value}). %data przechowywana jest w kluczu mapy
@@ -31,8 +30,6 @@ createMonitor () ->
   }
 .
 
-%dziala
-%czy pomiary jako mapa????
 %kluczem pomiaru jest data a wartoscia jest lista/mapa pomiarow
 addStation(Monitor,StationName,Coordinates) ->
   case{maps:is_key(StationName,Monitor#monitor.nToId) , maps:is_key(Coordinates,Monitor#monitor.cToId)} of
@@ -211,31 +208,3 @@ getAirQualityIndex(Monitor,Date,NameOrCoordinates) ->
     true -> [PM10 | _] = X, [PM25 | _] = Y, max(PM10#measurement.value/50,PM25#measurement.value/30)
   end
 .
-
-%addStation(Monitor,StationName,Coordinates) ->
-%  case maps:find( #station{stationName = StationName,coordinates = _} , Monitor) of %case'a z szukaniem trzeba poprawic mamy znalezc
-%        {ok,_}  ->  io:format("nie mozna tego juz dodac bo jest o takiej nazwie");
-%         _      -> case maps:find( #station{stationName = _,coordinates = Coordinates} , Monitor) of
-%                    {ok,_}  ->  io:format("nie mozna tego juz dodac bo jest o takich wsplrzednych");
-%                     %jezeli nie znalezlismy stacji o takich koordynatach ani nazwe to dodajemy
-%                     _ ->  maps:update( #station{stationName = StationName,coordinates = Coordinates} , #{} ,Monitor)
-%                   end
-%  end.
-
-%addValue(Monitor,NameOrCoordinates,Date,MeasurementType,MeasurementValue) ->
-%  case NameOrCoordinates of
-%    {_,_} -> case maps:find( #station{stationName = _Name,coordinates = NameOrCoordinates} , Monitor) of
-%               %znalezlismy nasza stacje i mamy mape jej pomiarow | teraz musimy sprawdzic czy jest pomiar w tym samym czasie tego samego typu
-%                %_X to mapa naszych pomiarów
-%               {ok,_X} -> case maps:find(Date, _X) of
-%                            {ok,_Measurments}
-%                            _ ->
-%                          end
-%
-%                 _    -> io:format("nie ma stacji o tych koordynatach!")
-%             end
-%    _     -> case maps:find( #station{stationName = NameOrCoordinates ,coordinates = _Cords} , Monitor) of
-%               {ok,_X} ->  ;%tu musimy zaktualizowac monitor
-%               _    -> io:format("nie ma stacji o takiej nazwie!")
-%             end
-%  end.
